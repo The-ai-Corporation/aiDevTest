@@ -2,7 +2,7 @@
 The ai Development Recruitment Test
 
 In order to submit this test you must:
-- Create a branch that clearly identifies your submission (e.g. "JohnDoe-DevTest")
+- Create a Fork of this repository
 - Complete the challenge described below and push your changes to your branch
 - Open a Pull Request to merge your submission into the _main_ branch
 - Reply to the HR email inviting you to complete this test to inform us that you have completed it
