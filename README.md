@@ -59,3 +59,5 @@ BULK PARSE: a successful run of a "Run Bulk Test" operation - using the default 
 - The SalesAgent, SalesAgentList, Client, ClientList, BankAccount and BankAccountList classes are deliberately immutable. The SalesAgentBuilder, SalesAgentListBuilder, ClientBuilder, ClientListBuilder, BankAccountBuilder and BankAccountListBuilder classes are mutable versions of these classes and are intended to be used to create instances of the immutable classes. **Please do NOT change immutability of the SalesAgent, SalesAgentList, Client, ClientList, BankAccount and BankAccountList classes**.
 
 **A NOTE ABOUT CODING STYLE:** Additional credit will be given to solutions that maintain (and replicate) the style of the code. It is important for developers to be able to code to the standards of a given team, so that the style of any code added feels completely familiar and does not feel alien to anyone else working on the product
+
+Test change
