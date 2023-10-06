@@ -38,7 +38,7 @@ The Run Bulk Test function will dynamically create CSV files based on the parame
 
 **NOTE:** you should not need to change the default parameters to successfully pass the test. They have been presented in the form for completeness (and also for your curiousity to play around with)
 
-**NOTE: **when running a bulk test - any files that fail to parse will be saved in a specific directory (the location of which can be controlled via a config setting in the app.config file). This is intended to allow you to reparse (and debug) any specific files using the "Single File Parse" that failed as part of the bulk operation
+**NOTE:** when running a bulk test - any files that fail to parse will be saved in a specific directory (the location of which can be controlled via a config setting in the app.config file). This is intended to allow you to reparse (and debug) any specific files using the "Single File Parse" that failed as part of the bulk operation
 
 ## Passing crieria
 Your solution must be able to successfully read the flat data from a CSV file of the defined format into an instance of a (hierarchical) SalesAgentList object
