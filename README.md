@@ -1,6 +1,14 @@
 # aiDevTest
 The ai Development Recruitment Test
 
+In order to submit this test you must:
+- Create a branch that clearly identifies your submission (e.g. "JohnDoe-DevTest")
+- Complete the challenge described below and push your changes to your branch
+- Open a Pull Request to merge your submission into the _main_ branch
+- Reply to the HR email inviting you to complete this test to inform us that you have completed it
+
+Commit to your branch as freely as you like; development is a process, you won't be judged by the number of commits you do or don't push to complete this task.
+
 # Flat Data Reading
 ## Background
 Flat file text formats like CSV are very simple and convenient ways to exchange data. They are simple to work with, can be opened and edited in most spread sheet editing software (like Microsoft Excel) and are very easy to generate programmatically.
