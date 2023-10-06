@@ -36,9 +36,9 @@ Table 1: CSV file format specification
 
 The Run Bulk Test function will dynamically create CSV files based on the parameters in the form
 
-NOTE: you should not need to change the default parameters to successfully pass the test. They have been presented in the form for completeness (and also for your curiousity to play around with)
+**NOTE:** you should not need to change the default parameters to successfully pass the test. They have been presented in the form for completeness (and also for your curiousity to play around with)
 
-NOTE: when running a bulk test - any files that fail to parse will be saved in a specific directory (the location of which can be controlled via a config setting in the app.config file). This is intended to allow you to reparse (and debug) any specific files using the "Single File Parse" that failed as part of the bulk operation
+**NOTE: **when running a bulk test - any files that fail to parse will be saved in a specific directory (the location of which can be controlled via a config setting in the app.config file). This is intended to allow you to reparse (and debug) any specific files using the "Single File Parse" that failed as part of the bulk operation
 
 ## Passing crieria
 Your solution must be able to successfully read the flat data from a CSV file of the defined format into an instance of a (hierarchical) SalesAgentList object
@@ -48,6 +48,6 @@ BULK PARSE: a successful run of a "Run Bulk Test" operation - using the default 
 ## Task Restrictions
 - You should mainly need to add code into the ToSalesAgentList() method of the SalesAgentFileRecordList class (in FlatData.cs) - you can make changes to the code elsewhere in FlatData.cs and HierarchicalData.cs so long as it adheres to the other task restrictions below
 - Please do not modify any of the code in any of the classes except the ones in the aiCorporation.NewImproved namespace (FlatData.cs and HierarchicalData.cs). Your code will be tested in a harness where all the other files are unmodifed, and so it should still work against these original, unmodified files
-- The SalesAgent, SalesAgentList, Client, ClientList, BankAccount and BankAccountList classes are deliberately immutable. The SalesAgentBuilder, SalesAgentListBuilder, ClientBuilder, ClientListBuilder, BankAccountBuilder and BankAccountListBuilder classes are mutable versions of these classes and are intended to be used to create instances of the immutable classes. Please do NOT change immutability of the SalesAgent, SalesAgentList, Client, ClientList, BankAccount and BankAccountList classes
+- The SalesAgent, SalesAgentList, Client, ClientList, BankAccount and BankAccountList classes are deliberately immutable. The SalesAgentBuilder, SalesAgentListBuilder, ClientBuilder, ClientListBuilder, BankAccountBuilder and BankAccountListBuilder classes are mutable versions of these classes and are intended to be used to create instances of the immutable classes. **Please do NOT change immutability of the SalesAgent, SalesAgentList, Client, ClientList, BankAccount and BankAccountList classes**.
 
-A NOTE ABOUT CODING STYLE: Additional credit will be given to solutions that maintain (and replicate) the style of the code. It is important for developers to be able to code to the standards of a given team, so that the style of any code added feels completely familiar and does not feel alien to anyone else working on the product
+**A NOTE ABOUT CODING STYLE:** Additional credit will be given to solutions that maintain (and replicate) the style of the code. It is important for developers to be able to code to the standards of a given team, so that the style of any code added feels completely familiar and does not feel alien to anyone else working on the product
