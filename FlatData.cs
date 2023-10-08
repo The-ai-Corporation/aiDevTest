@@ -192,7 +192,52 @@ namespace aiCorporation.NewImproved
         /************************************************************/
         public SalesAgentList ToSalesAgentList()
         {
-            throw new NotImplementedException("You must implement this function");
+            SalesAgentList salReturnSalesAgentList;
+            SalesAgentListBuilder salSalesAgentList;
+            SalesAgentBuilder saCurrentSalesAgent;
+            ClientBuilder cClient;
+            BankAccountBuilder baBankAccount;
+
+            salSalesAgentList = new SalesAgentListBuilder();
+            saCurrentSalesAgent = new SalesAgentBuilder();
+            cClient = new ClientBuilder();
+            baBankAccount = new BankAccountBuilder();
+
+
+            foreach (var line in m_lsafrSalesAgentFileRecordList)
+            {
+                //Assume that the CSV file will be sorted by sales agent, client and bank account
+                if (saCurrentSalesAgent.SalesAgentEmailAddress != line.SalesAgentEmailAddress)
+                {
+                    saCurrentSalesAgent = new SalesAgentBuilder();
+                    saCurrentSalesAgent.SalesAgentEmailAddress = line.SalesAgentEmailAddress;
+                    saCurrentSalesAgent.SalesAgentName = line.SalesAgentName;
+                    salSalesAgentList.Add(saCurrentSalesAgent);
+                }
+
+                if (cClient.ClientIdentifier != line.ClientIdentifier)
+                {
+                    cClient = new ClientBuilder();
+                    cClient.ClientIdentifier = line.ClientIdentifier;
+                    cClient.ClientName = line.ClientName;
+                    saCurrentSalesAgent.ClientList.Add(cClient);
+                }
+
+                if (baBankAccount.AccountNumber != line.AccountNumber || baBankAccount.SortCode != line.SortCode || baBankAccount.BankName != line.BankName)
+                {
+                    baBankAccount = new BankAccountBuilder();
+                    baBankAccount.BankName = line.BankName;
+                    baBankAccount.AccountNumber = line.AccountNumber;
+                    baBankAccount.SortCode = line.SortCode;
+                    cClient.BankAccountList.Add(baBankAccount);
+                }
+                baBankAccount.Currency = line.Currency;
+
+            }
+
+            salReturnSalesAgentList = new SalesAgentList(salSalesAgentList.GetListOfSalesAgentObjects());
+
+            return (salReturnSalesAgentList);
         }
 
         public SalesAgentFileRecordList(List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList)
