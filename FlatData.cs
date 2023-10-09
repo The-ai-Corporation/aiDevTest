@@ -110,7 +110,7 @@ namespace aiCorporation.NewImproved
                 {
                     if (m_lsafrSalesAgentFileRecordList[nCount].SalesAgentEmailAddress == szSalesAgentEmailAddress)
                     {
-                        boFound = true;
+                        boFound = false;
                         safrSalesAgentFileRecord = m_lsafrSalesAgentFileRecordList[nCount];
                     }
                     nCount++;
