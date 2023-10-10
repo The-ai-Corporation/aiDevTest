@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using CsvHelper;
+using aiCorporation.OriginalDoNotChange;
 
 namespace aiCorporation.NewImproved
 {
@@ -190,10 +191,61 @@ namespace aiCorporation.NewImproved
         /************************************************************/
         /* THIS IS THE FUNCTION THAT WE WOULD LIKE YOU TO IMPLEMENT */
         /************************************************************/
+
+        /// <summary>
+        /// Dictionary is used to make fetch the data and compare faster
+        /// </summary>
+        /// <returns></returns>
+
         public SalesAgentList ToSalesAgentList()
         {
-            throw new NotImplementedException("You must implement this function");
+            Dictionary<string, SalesAgentBuilder> salesAgents = new Dictionary<string, SalesAgentBuilder>();
+            SalesAgentListBuilder salSalesAgentList = new SalesAgentListBuilder();
+
+            foreach (SalesAgentFileRecord record in m_lsafrSalesAgentFileRecordList)
+            {
+                if (!salesAgents.TryGetValue(record.SalesAgentEmailAddress, out SalesAgentBuilder salesAgentBuilder))
+                {
+                    salesAgentBuilder = new SalesAgentBuilder
+                    {
+                        SalesAgentEmailAddress = record.SalesAgentEmailAddress,
+                        SalesAgentName = record.SalesAgentName
+                    };
+                    salSalesAgentList.Add(salesAgentBuilder);
+                    salesAgents[record.SalesAgentEmailAddress] = salesAgentBuilder;
+                }
+
+                ClientBuilder clientBuilder = salesAgentBuilder.ClientList[record.ClientIdentifier];
+
+                if (clientBuilder == null)
+                {
+                    clientBuilder = new ClientBuilder
+                    {
+                        ClientIdentifier = record.ClientIdentifier,
+                        ClientName = record.ClientName
+                    };
+                    salesAgentBuilder.ClientList.Add(clientBuilder);
+                }
+
+                BankAccountBuilder bankAccountBuilder = clientBuilder.BankAccountList.GetBankAccount(record.BankName, record.AccountNumber, record.SortCode);
+
+                if (bankAccountBuilder == null)
+                {
+                    bankAccountBuilder = new BankAccountBuilder
+                    {
+                        BankName = record.BankName,
+                        AccountNumber = record.AccountNumber,
+                        SortCode = record.SortCode
+                    };
+                    clientBuilder.BankAccountList.Add(bankAccountBuilder);
+                }
+
+                bankAccountBuilder.Currency = record.Currency;
+            }
+
+            return new SalesAgentList(salSalesAgentList.GetListOfSalesAgentObjects());
         }
+
 
         public SalesAgentFileRecordList(List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList)
         {
