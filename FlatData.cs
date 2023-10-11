@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,9 +30,7 @@ namespace aiCorporation.NewImproved
 
         public static string CsvHeader()
         {
-            StringBuilder sbString;
-
-            sbString = new StringBuilder();
+            StringBuilder sbString = new StringBuilder();
 
             sbString.Append("SalesAgentName,SalesAgentEmailAddress,ClientName,ClientIdentifier,BankName,AccountNumber,SortCode,Currency\r\n");
 
@@ -41,9 +39,7 @@ namespace aiCorporation.NewImproved
 
         public string ToCsvRecord()
         {
-            StringBuilder sbString;
-
-            sbString = new StringBuilder();
+            StringBuilder sbString = new StringBuilder();
 
             sbString.AppendFormat("\"{0}\"", m_szSalesAgentName);
             sbString.AppendFormat(",\"{0}\"", m_szSalesAgentEmailAddress);
@@ -121,10 +117,9 @@ namespace aiCorporation.NewImproved
 
         public string ToCsvString()
         {
-            StringBuilder sbCsvString;
             int nCount;
 
-            sbCsvString = new StringBuilder();
+            StringBuilder sbCsvString = new StringBuilder();
 
             sbCsvString.Append(SalesAgentFileRecord.CsvHeader());
 
@@ -134,6 +129,7 @@ namespace aiCorporation.NewImproved
             }
 
             return (sbCsvString.ToString());
+
         }
 
         public static SalesAgentFileRecordList FromCsvStream(Stream sStream)
@@ -186,28 +182,63 @@ namespace aiCorporation.NewImproved
 
             return (safrlSalesAgentFileRecordList);
         }
-
+        
         /************************************************************/
         /* THIS IS THE FUNCTION THAT WE WOULD LIKE YOU TO IMPLEMENT */
         /************************************************************/
         public SalesAgentList ToSalesAgentList()
         {
-            throw new NotImplementedException("You must implement this function");
+            var salSalesAgentList = new SalesAgentListBuilder();
+            var salesAgentDict = new Dictionary<string, SalesAgentBuilder>();
+            ClientBuilder cClient;
+            BankAccountBuilder baBankAccount;
+            foreach (var fileRecord in m_lsafrSalesAgentFileRecordList)
+            {
+                if (!salesAgentDict.TryGetValue(fileRecord.SalesAgentEmailAddress, out var saCurrentSalesAgent))
+                {
+                    saCurrentSalesAgent = new SalesAgentBuilder
+                    {
+                        SalesAgentEmailAddress = fileRecord.SalesAgentEmailAddress,
+                        SalesAgentName = fileRecord.SalesAgentName
+                    };
+                    salesAgentDict[fileRecord.SalesAgentEmailAddress] = saCurrentSalesAgent;
+                    salSalesAgentList.Add(saCurrentSalesAgent);
+                }
+                cClient = saCurrentSalesAgent.ClientList[fileRecord.ClientIdentifier];
+                if (saCurrentSalesAgent.ClientList[fileRecord.ClientIdentifier]== null)
+                {
+                    cClient = new ClientBuilder
+                    {
+                        ClientIdentifier = fileRecord.ClientIdentifier,
+                        ClientName = fileRecord.ClientName
+                    };
+                    saCurrentSalesAgent.ClientList.Add(cClient);
+                }
+                baBankAccount = cClient.BankAccountList.GetBankAccount(fileRecord.BankName, fileRecord.AccountNumber, fileRecord.SortCode);
+                if (baBankAccount == null)
+                {
+                    baBankAccount = new BankAccountBuilder
+                    {
+                        BankName = fileRecord.BankName,
+                        AccountNumber = fileRecord.AccountNumber,
+                        SortCode = fileRecord.SortCode
+                    };
+                    cClient.BankAccountList.Add(baBankAccount);
+                }
+
+                baBankAccount.Currency = fileRecord.Currency;
+            }
+
+            var salReturnSalesAgentList = new SalesAgentList(salSalesAgentList.GetListOfSalesAgentObjects());
+
+            return salReturnSalesAgentList;
+
         }
 
         public SalesAgentFileRecordList(List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList)
         {
-            int nCount = 0;
+            m_lsafrSalesAgentFileRecordList = lsafrSalesAgentFileRecordList ?? new List<SalesAgentFileRecord>();
 
-            m_lsafrSalesAgentFileRecordList = new List<SalesAgentFileRecord>();
-
-            if (lsafrSalesAgentFileRecordList != null)
-            {
-                for (nCount = 0; nCount < lsafrSalesAgentFileRecordList.Count; nCount++)
-                {
-                    m_lsafrSalesAgentFileRecordList.Add(lsafrSalesAgentFileRecordList[nCount]);
-                }
-            }
         }
 
         public List<SalesAgentFileRecord> GetListOfSalesAgentFileRecordObjects()
