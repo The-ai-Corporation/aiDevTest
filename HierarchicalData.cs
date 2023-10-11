@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -73,46 +73,63 @@ namespace aiCorporation.NewImproved
 
         public SalesAgentFileRecordList ToSalesAgentFileRecordList()
         {
-            List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList;
-            SalesAgentFileRecordList safrlSalesAgentFileRecordList;
-            SalesAgentFileRecord safrSalesAgentFileRecord;
-            int nSalesAgentCount;
-            int nClientCount;
-            int nBankAccountCount;
+            Dictionary<string, Dictionary<string, Dictionary<string, SalesAgentFileRecord>>> dictSalesAgent =
+                new Dictionary<string, Dictionary<string, Dictionary<string, SalesAgentFileRecord>>>();
 
-            lsafrSalesAgentFileRecordList = new List<SalesAgentFileRecord>();
-
-            for (nSalesAgentCount = 0; nSalesAgentCount < m_lsaSalesAgentList.Count; nSalesAgentCount++)
+            foreach (var salesAgent in m_lsaSalesAgentList)
             {
-                for (nClientCount = 0; nClientCount < m_lsaSalesAgentList[nSalesAgentCount].ClientList.Count; nClientCount++)
+                foreach (var client in salesAgent.ClientList.GetListOfClientObjects())
                 {
-                    for (nBankAccountCount = 0; nBankAccountCount < m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList.Count; nBankAccountCount++)
+                    foreach (var bankAccount in client.BankAccountList.GetListOfBankAccountObjects())
                     {
-                        safrSalesAgentFileRecord = new SalesAgentFileRecord(m_lsaSalesAgentList[nSalesAgentCount].SalesAgentName,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].SalesAgentEmailAddress,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].ClientName,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].ClientIdentifier,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList[nBankAccountCount].BankName,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList[nBankAccountCount].AccountNumber,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList[nBankAccountCount].SortCode,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList[nBankAccountCount].Currency);
-                        lsafrSalesAgentFileRecordList.Add(safrSalesAgentFileRecord);
+                        if (!dictSalesAgent.TryGetValue(salesAgent.SalesAgentEmailAddress, out var dictClients))
+                        {
+                            dictClients = new Dictionary<string, Dictionary<string, SalesAgentFileRecord>>();
+                            dictSalesAgent[salesAgent.SalesAgentEmailAddress] = dictClients;
+                        }
+
+                        if (!dictClients.TryGetValue(client.ClientIdentifier, out var dictBankAccounts))
+                        {
+                            dictBankAccounts = new Dictionary<string, SalesAgentFileRecord>();
+                            dictClients[client.ClientIdentifier] = dictBankAccounts;
+                        }
+
+                        var safrSalesAgentFileRecord = new SalesAgentFileRecord(
+                            salesAgent.SalesAgentName,
+                            salesAgent.SalesAgentEmailAddress,
+                            client.ClientName,
+                            client.ClientIdentifier,
+                            bankAccount.BankName,
+                            bankAccount.AccountNumber,
+                            bankAccount.SortCode,
+                            bankAccount.Currency
+                        );
+
+                        dictBankAccounts[bankAccount.AccountNumber] = safrSalesAgentFileRecord;
                     }
                 }
             }
 
-            safrlSalesAgentFileRecordList = new SalesAgentFileRecordList(lsafrSalesAgentFileRecordList);
+            List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList = new List<SalesAgentFileRecord>();
 
-            return (safrlSalesAgentFileRecordList);
+            foreach (var dictClients in dictSalesAgent.Values)
+            {
+                foreach (var dictBankAccounts in dictClients.Values)
+                {
+                    lsafrSalesAgentFileRecordList.AddRange(dictBankAccounts.Values);
+                }
+            }
+
+            return new SalesAgentFileRecordList(lsafrSalesAgentFileRecordList);
         }
+
 
         public void Sort()
         {
-            int nCount;
 
             m_lsaSalesAgentList.Sort(SalesAgent.Compare);
 
-            for (nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
+            for (int nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
             {
                 m_lsaSalesAgentList[nCount].ClientList.Sort();
             }
@@ -120,11 +137,10 @@ namespace aiCorporation.NewImproved
 
         public SalesAgentList(List<SalesAgent> lsaSalesAgentList)
         {
-            int nCount = 0;
 
             m_lsaSalesAgentList = new List<SalesAgent>();
 
-            for (nCount = 0; nCount < lsaSalesAgentList.Count; nCount++)
+            for (int nCount = 0; nCount < lsaSalesAgentList.Count; nCount++)
             {
                 m_lsaSalesAgentList.Add(lsaSalesAgentList[nCount]);
             }
@@ -132,12 +148,10 @@ namespace aiCorporation.NewImproved
 
         public List<SalesAgent> GetListOfSalesAgentObjects()
         {
-            List<SalesAgent> lsaSalesAgentList = null;
-            int nCount = 0;
 
-            lsaSalesAgentList = new List<SalesAgent>();
+            List<SalesAgent> lsaSalesAgentList = new List<SalesAgent>();
 
-            for (nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
+            for (int nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
             {
                 lsaSalesAgentList.Add(m_lsaSalesAgentList[nCount]);
             }
@@ -213,11 +227,10 @@ namespace aiCorporation.NewImproved
 
         public void Sort()
         {
-            int nCount;
 
             m_lcClientList.Sort(Client.Compare);
 
-            for (nCount = 0; nCount < m_lcClientList.Count; nCount++)
+            for (int nCount = 0; nCount < m_lcClientList.Count; nCount++)
             {
                 m_lcClientList[nCount].BankAccountList.Sort();
             }
@@ -225,11 +238,9 @@ namespace aiCorporation.NewImproved
 
         public ClientList(ClientListBuilder clClientList)
         {
-            int nCount;
-
             m_lcClientList = new List<Client>();
 
-            for (nCount = 0; nCount < clClientList.Count; nCount++)
+            for (int nCount = 0; nCount < clClientList.Count; nCount++)
             {
                 m_lcClientList.Add(clClientList[nCount].ToClient());
             }
@@ -237,11 +248,10 @@ namespace aiCorporation.NewImproved
 
         public ClientList(List<Client> lcClientList)
         {
-            int nCount = 0;
 
             m_lcClientList = new List<Client>();
 
-            for (nCount = 0; nCount < lcClientList.Count; nCount++)
+            for (int nCount = 0; nCount < lcClientList.Count; nCount++)
             {
                 m_lcClientList.Add(lcClientList[nCount]);
             }
@@ -249,12 +259,10 @@ namespace aiCorporation.NewImproved
 
         public List<Client> GetListOfClientObjects()
         {
-            List<Client> lcClientList = null;
-            int nCount = 0;
 
-            lcClientList = new List<Client>();
+            List<Client> lcClientList = new List<Client>();
 
-            for (nCount = 0; nCount < m_lcClientList.Count; nCount++)
+            for (int nCount = 0; nCount < m_lcClientList.Count; nCount++)
             {
                 lcClientList.Add(m_lcClientList[nCount]);
             }
@@ -277,9 +285,9 @@ namespace aiCorporation.NewImproved
 
         public static int Compare(BankAccount baFirst, BankAccount baSecond)
         {
-            int nReturnValue;
+            
 
-            nReturnValue = String.Compare(baFirst.BankName, baSecond.BankName);
+            int nReturnValue = String.Compare(baFirst.BankName, baSecond.BankName);
 
             // bank names equal?
             if (nReturnValue == 0)
@@ -335,11 +343,10 @@ namespace aiCorporation.NewImproved
 
         public BankAccountList(List<BankAccount> lbaBankAccountList)
         {
-            int nCount = 0;
 
             m_lbaBankAccountList = new List<BankAccount>();
 
-            for (nCount = 0; nCount < lbaBankAccountList.Count; nCount++)
+            for (int nCount = 0; nCount < lbaBankAccountList.Count; nCount++)
             {
                 m_lbaBankAccountList.Add(lbaBankAccountList[nCount]);
             }
@@ -347,12 +354,11 @@ namespace aiCorporation.NewImproved
 
         public List<BankAccount> GetListOfBankAccountObjects()
         {
-            List<BankAccount> lbaBankAccountList = null;
-            int nCount = 0;
+           
 
-            lbaBankAccountList = new List<BankAccount>();
+            List<BankAccount> lbaBankAccountList = new List<BankAccount>();
 
-            for (nCount = 0; nCount < m_lbaBankAccountList.Count; nCount++)
+            for (int nCount = 0; nCount < m_lbaBankAccountList.Count; nCount++)
             {
                 lbaBankAccountList.Add(m_lbaBankAccountList[nCount]);
             }
@@ -381,9 +387,9 @@ namespace aiCorporation.NewImproved
 
         public SalesAgent ToSalesAgent()
         {
-            SalesAgent saSalesAgent;
+           
 
-            saSalesAgent = new SalesAgent(m_szSalesAgentName, m_szSalesAgentEmailAddress, m_clClientList.GetListOfClientObjects());
+            SalesAgent saSalesAgent = new SalesAgent(m_szSalesAgentName, m_szSalesAgentEmailAddress, m_clClientList.GetListOfClientObjects());
 
             return (saSalesAgent);
         }
@@ -449,12 +455,10 @@ namespace aiCorporation.NewImproved
 
         public List<SalesAgent> GetListOfSalesAgentObjects()
         {
-            List<SalesAgent> lsaSalesAgentList = null;
-            int nCount = 0;
 
-            lsaSalesAgentList = new List<SalesAgent>();
+            List<SalesAgent> lsaSalesAgentList = new List<SalesAgent>();
 
-            for (nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
+            for (int nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
             {
                 lsaSalesAgentList.Add(m_lsaSalesAgentList[nCount].ToSalesAgent());
             }
@@ -483,9 +487,8 @@ namespace aiCorporation.NewImproved
 
         public Client ToClient()
         {
-            Client cClient;
 
-            cClient = new Client(m_szClientName, m_szClientIdentifier, m_balBankAccountList.GetListOfBankAccountObjects());
+            Client cClient = new Client(m_szClientName, m_szClientIdentifier, m_balBankAccountList.GetListOfBankAccountObjects());
 
             return (cClient);
         }
@@ -551,12 +554,10 @@ namespace aiCorporation.NewImproved
 
         public List<Client> GetListOfClientObjects()
         {
-            List<Client> lcClientList = null;
-            int nCount = 0;
 
-            lcClientList = new List<Client>();
+            List<Client> lcClientList = new List<Client>();
 
-            for (nCount = 0; nCount < m_lcClientList.Count; nCount++)
+            for (int nCount = 0; nCount < m_lcClientList.Count; nCount++)
             {
                 lcClientList.Add(m_lcClientList[nCount].ToClient());
             }
@@ -595,9 +596,7 @@ namespace aiCorporation.NewImproved
 
         public BankAccount ToBankAccount()
         {
-            BankAccount baBankAccount;
-
-            baBankAccount = new BankAccount(m_szBankName, m_szAccountNumber, m_szSortCode, m_szCurrency);
+            BankAccount baBankAccount = new BankAccount(m_szBankName, m_szAccountNumber, m_szSortCode, m_szCurrency);
 
             return (baBankAccount);
         }
@@ -657,12 +656,10 @@ namespace aiCorporation.NewImproved
 
         public List<BankAccount> GetListOfBankAccountObjects()
         {
-            List<BankAccount> lbaBankAccountList = null;
-            int nCount = 0;
 
-            lbaBankAccountList = new List<BankAccount>();
+            List<BankAccount> lbaBankAccountList  = new List<BankAccount>();
 
-            for (nCount = 0; nCount < m_lbaBankAccountList.Count; nCount++)
+            for (int nCount = 0; nCount < m_lbaBankAccountList.Count; nCount++)
             {
                 lbaBankAccountList.Add(m_lbaBankAccountList[nCount].ToBankAccount());
             }
