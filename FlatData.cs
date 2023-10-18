@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using CsvHelper;
+using aiCorporation.Models;
 
 namespace aiCorporation.NewImproved
 {
@@ -59,23 +60,16 @@ namespace aiCorporation.NewImproved
             return (sbString.ToString());
         }
 
-        public SalesAgentFileRecord(string szSalesAgentName,
-                                    string szSalesAgentEmailAddress,
-                                    string szClientName,
-                                    string szClientIdentifier,
-                                    string szBankName,
-                                    string szAccountNumber,
-                                    string szSortCode,
-                                    string szCurrency)
+        public SalesAgentFileRecord(SalesAgentFileRecordModel model)
         {
-            m_szSalesAgentName = szSalesAgentName;
-            m_szSalesAgentEmailAddress = szSalesAgentEmailAddress;
-            m_szClientName = szClientName;
-            m_szClientIdentifier = szClientIdentifier;
-            m_szBankName = szBankName;
-            m_szAccountNumber = szAccountNumber;
-            m_szSortCode = szSortCode;
-            m_szCurrency = szCurrency;
+            m_szSalesAgentName = model.szSalesAgentName;
+            m_szSalesAgentEmailAddress = model.szSalesAgentEmailAddress;
+            m_szClientName = model.szClientName;
+            m_szClientIdentifier = model.szClientIdentifier;
+            m_szBankName = model.szBankName;
+            m_szAccountNumber = model.szAccountNumber;
+            m_szSortCode = model.szSortCode;
+            m_szCurrency = model.szCurrency;
         }
     }
     public class SalesAgentFileRecordList
@@ -143,14 +137,6 @@ namespace aiCorporation.NewImproved
             SalesAgentFileRecord safrSalesAgentFileRecord;
             List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList;
             SalesAgentFileRecordList safrlSalesAgentFileRecordList;
-            string szSalesAgentName;
-            string szSalesAgentEmailAddress;
-            string szClientName;
-            string szClientIdentifier;
-            string szBankName;
-            string szAccountNumber;
-            string szSortCode;
-            string szCurrency;
             int nCount;
 
             lsafrSalesAgentFileRecordList = new List<SalesAgentFileRecord>();
@@ -167,16 +153,19 @@ namespace aiCorporation.NewImproved
                     // don't read in the first row as it's the header data
                     if (nCount > 0)
                     {
-                        szSalesAgentName = crReader.GetField<string>(0);
-                        szSalesAgentEmailAddress = crReader.GetField<string>(1);
-                        szClientName = crReader.GetField<string>(2);
-                        szClientIdentifier = crReader.GetField<string>(3);
-                        szBankName = crReader.GetField<string>(4);
-                        szAccountNumber = crReader.GetField<string>(5);
-                        szSortCode = crReader.GetField<string>(6);
-                        szCurrency = crReader.GetField<string>(7);
+                        SalesAgentFileRecordModel salesAgentFileRecord = new SalesAgentFileRecordModel()
+                        {
+                            szSalesAgentName = crReader.GetField<string>(0),
+                            szSalesAgentEmailAddress = crReader.GetField<string>(1),
+                            szClientName = crReader.GetField<string>(2),
+                            szClientIdentifier = crReader.GetField<string>(3),
+                            szBankName = crReader.GetField<string>(4),
+                            szAccountNumber = crReader.GetField<string>(5),
+                            szSortCode = crReader.GetField<string>(6),
+                            szCurrency = crReader.GetField<string>(7)
+                        };
 
-                        safrSalesAgentFileRecord = new SalesAgentFileRecord(szSalesAgentName, szSalesAgentEmailAddress, szClientName, szClientIdentifier, szBankName, szAccountNumber, szSortCode, szCurrency);
+                        safrSalesAgentFileRecord = new SalesAgentFileRecord(salesAgentFileRecord);
                         lsafrSalesAgentFileRecordList.Add(safrSalesAgentFileRecord);
                     }
                     nCount++;
@@ -192,7 +181,63 @@ namespace aiCorporation.NewImproved
         /************************************************************/
         public SalesAgentList ToSalesAgentList()
         {
-            throw new NotImplementedException("You must implement this function");
+            SalesAgentListBuilder salSalesAgentList;      
+
+            salSalesAgentList = new SalesAgentListBuilder();
+
+            int nCount;
+            for (nCount = 0; nCount < m_lsafrSalesAgentFileRecordList.Count; nCount++)
+            {
+                // if we write m_lsafrSalesAgentFileRecordList[nCount] again and again then this will more traverse in array so first instance is created with data, later we access it
+                var thissafrSalesAgentFileRecord = m_lsafrSalesAgentFileRecordList[nCount];
+
+                SalesAgentBuilder saCurrentSalesAgent;
+                saCurrentSalesAgent = salSalesAgentList[thissafrSalesAgentFileRecord.SalesAgentEmailAddress];
+
+                if (saCurrentSalesAgent == null)
+                {
+                    saCurrentSalesAgent = new SalesAgentBuilder()
+                    {
+                        SalesAgentEmailAddress = thissafrSalesAgentFileRecord.SalesAgentEmailAddress,
+                        SalesAgentName = thissafrSalesAgentFileRecord.SalesAgentName
+                    };
+                    ClientBuilder cClient;
+                    cClient = saCurrentSalesAgent.ClientList[thissafrSalesAgentFileRecord.ClientIdentifier];
+
+                    if (cClient == null)
+                    {
+                        cClient = new ClientBuilder()
+                        {
+                            ClientIdentifier = thissafrSalesAgentFileRecord.ClientIdentifier,
+                            ClientName = thissafrSalesAgentFileRecord.ClientName,
+                        };
+                        BankAccountBuilder baBankAccount;
+                        baBankAccount = cClient.BankAccountList.GetBankAccount(thissafrSalesAgentFileRecord.BankName, thissafrSalesAgentFileRecord.AccountNumber, thissafrSalesAgentFileRecord.SortCode);
+
+                        if (baBankAccount == null)
+                        {
+                            baBankAccount = new BankAccountBuilder()
+                            {
+                                BankName = thissafrSalesAgentFileRecord.BankName,
+                                AccountNumber = thissafrSalesAgentFileRecord.AccountNumber,
+                                SortCode = thissafrSalesAgentFileRecord.SortCode
+                            };
+
+                            cClient.BankAccountList.Add(baBankAccount);
+                        }
+
+                        baBankAccount.Currency = thissafrSalesAgentFileRecord.Currency;
+
+                        saCurrentSalesAgent.ClientList.Add(cClient);
+                    }
+                    salSalesAgentList.Add(saCurrentSalesAgent);
+                }
+            }
+
+            SalesAgentList salReturnSalesAgentList;
+            salReturnSalesAgentList = new SalesAgentList(salSalesAgentList.GetListOfSalesAgentObjects());
+
+            return (salReturnSalesAgentList);
         }
 
         public SalesAgentFileRecordList(List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList)

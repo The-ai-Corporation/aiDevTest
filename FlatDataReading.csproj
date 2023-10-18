@@ -59,6 +59,7 @@
     </Compile>
     <Compile Include="HierarchicalData.cs" />
     <Compile Include="HierarchicalData_Original.cs" />
+    <Compile Include="Models\SalesAgentFileRecordModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestValidator.cs" />
