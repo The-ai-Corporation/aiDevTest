@@ -175,13 +175,13 @@ namespace aiCorporation.NewImproved
 
             return (safrlSalesAgentFileRecordList);
         }
-
+        
         /************************************************************/
         /* THIS IS THE FUNCTION THAT WE WOULD LIKE YOU TO IMPLEMENT */
         /************************************************************/
         public SalesAgentList ToSalesAgentList()
-        {
-            SalesAgentListBuilder salSalesAgentList;      
+        { 
+            SalesAgentListBuilder salSalesAgentList;
 
             salSalesAgentList = new SalesAgentListBuilder();
 
@@ -200,38 +200,37 @@ namespace aiCorporation.NewImproved
                     {
                         SalesAgentEmailAddress = thissafrSalesAgentFileRecord.SalesAgentEmailAddress,
                         SalesAgentName = thissafrSalesAgentFileRecord.SalesAgentName
-                    };
-                    ClientBuilder cClient;
-                    cClient = saCurrentSalesAgent.ClientList[thissafrSalesAgentFileRecord.ClientIdentifier];
-
-                    if (cClient == null)
-                    {
-                        cClient = new ClientBuilder()
-                        {
-                            ClientIdentifier = thissafrSalesAgentFileRecord.ClientIdentifier,
-                            ClientName = thissafrSalesAgentFileRecord.ClientName,
-                        };
-                        BankAccountBuilder baBankAccount;
-                        baBankAccount = cClient.BankAccountList.GetBankAccount(thissafrSalesAgentFileRecord.BankName, thissafrSalesAgentFileRecord.AccountNumber, thissafrSalesAgentFileRecord.SortCode);
-
-                        if (baBankAccount == null)
-                        {
-                            baBankAccount = new BankAccountBuilder()
-                            {
-                                BankName = thissafrSalesAgentFileRecord.BankName,
-                                AccountNumber = thissafrSalesAgentFileRecord.AccountNumber,
-                                SortCode = thissafrSalesAgentFileRecord.SortCode
-                            };
-
-                            cClient.BankAccountList.Add(baBankAccount);
-                        }
-
-                        baBankAccount.Currency = thissafrSalesAgentFileRecord.Currency;
-
-                        saCurrentSalesAgent.ClientList.Add(cClient);
-                    }
+                    };                   
                     salSalesAgentList.Add(saCurrentSalesAgent);
                 }
+                ClientBuilder cClient;
+                cClient = saCurrentSalesAgent.ClientList[thissafrSalesAgentFileRecord.ClientIdentifier];
+
+                if (cClient == null)
+                {
+                    cClient = new ClientBuilder()
+                    {
+                        ClientIdentifier = thissafrSalesAgentFileRecord.ClientIdentifier,
+                        ClientName = thissafrSalesAgentFileRecord.ClientName,
+                    };
+                    saCurrentSalesAgent.ClientList.Add(cClient);
+                }
+                BankAccountBuilder baBankAccount;
+                baBankAccount = cClient.BankAccountList.GetBankAccount(thissafrSalesAgentFileRecord.BankName, thissafrSalesAgentFileRecord.AccountNumber, thissafrSalesAgentFileRecord.SortCode);
+
+                if (baBankAccount == null)
+                {
+                    baBankAccount = new BankAccountBuilder()
+                    {
+                        BankName = thissafrSalesAgentFileRecord.BankName,
+                        AccountNumber = thissafrSalesAgentFileRecord.AccountNumber,
+                        SortCode = thissafrSalesAgentFileRecord.SortCode
+                    };
+
+                    cClient.BankAccountList.Add(baBankAccount);
+                }
+
+                baBankAccount.Currency = thissafrSalesAgentFileRecord.Currency;
             }
 
             SalesAgentList salReturnSalesAgentList;
