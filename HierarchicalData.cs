@@ -23,7 +23,7 @@ namespace aiCorporation.NewImproved
 
         public SalesAgent(string szSalesAgentName,
                           string szSalesAgentEmailAddress,
-                          List<Client> lcClientList)
+                          IEnumerable<Client> lcClientList)
         {
             m_szSalesAgentName = szSalesAgentName;
             m_szSalesAgentEmailAddress = szSalesAgentEmailAddress;
@@ -53,21 +53,7 @@ namespace aiCorporation.NewImproved
         {
             get
             {
-                int nCount = 0;
-                bool boFound = false;
-                SalesAgent saSalesAgent = null;
-
-                while (!boFound &&
-                       nCount < m_lsaSalesAgentList.Count)
-                {
-                    if (m_lsaSalesAgentList[nCount].SalesAgentEmailAddress == szSalesAgentEmailAddress)
-                    {
-                        boFound = true;
-                        saSalesAgent = m_lsaSalesAgentList[nCount];
-                    }
-                    nCount++;
-                }
-                return (saSalesAgent);
+                return m_lsaSalesAgentList.Where(x => x.SalesAgentEmailAddress == szSalesAgentEmailAddress).FirstOrDefault();
             }
         }
 
@@ -76,26 +62,23 @@ namespace aiCorporation.NewImproved
             List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList;
             SalesAgentFileRecordList safrlSalesAgentFileRecordList;
             SalesAgentFileRecord safrSalesAgentFileRecord;
-            int nSalesAgentCount;
-            int nClientCount;
-            int nBankAccountCount;
 
             lsafrSalesAgentFileRecordList = new List<SalesAgentFileRecord>();
 
-            for (nSalesAgentCount = 0; nSalesAgentCount < m_lsaSalesAgentList.Count; nSalesAgentCount++)
+            foreach(var salesAgentList in m_lsaSalesAgentList)
             {
-                for (nClientCount = 0; nClientCount < m_lsaSalesAgentList[nSalesAgentCount].ClientList.Count; nClientCount++)
+                foreach ( var clientList in salesAgentList.ClientList.GetListOfClientObjects() )
                 {
-                    for (nBankAccountCount = 0; nBankAccountCount < m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList.Count; nBankAccountCount++)
+                    foreach ( var bankList in clientList.BankAccountList.GetListOfBankAccountObjects() )
                     {
-                        safrSalesAgentFileRecord = new SalesAgentFileRecord(m_lsaSalesAgentList[nSalesAgentCount].SalesAgentName,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].SalesAgentEmailAddress,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].ClientName,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].ClientIdentifier,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList[nBankAccountCount].BankName,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList[nBankAccountCount].AccountNumber,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList[nBankAccountCount].SortCode,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList[nBankAccountCount].Currency);
+                        safrSalesAgentFileRecord = new SalesAgentFileRecord(salesAgentList.SalesAgentName,
+                                                                            salesAgentList.SalesAgentEmailAddress,
+                                                                            clientList.ClientName,
+                                                                            clientList.ClientIdentifier,
+                                                                            bankList.BankName,
+                                                                            bankList.AccountNumber,
+                                                                            bankList.SortCode,
+                                                                            bankList.Currency);
                         lsafrSalesAgentFileRecordList.Add(safrSalesAgentFileRecord);
                     }
                 }
@@ -118,31 +101,14 @@ namespace aiCorporation.NewImproved
             }
         }
 
-        public SalesAgentList(List<SalesAgent> lsaSalesAgentList)
+        public SalesAgentList(IEnumerable<SalesAgent> lsaSalesAgentList)
         {
-            int nCount = 0;
-
-            m_lsaSalesAgentList = new List<SalesAgent>();
-
-            for (nCount = 0; nCount < lsaSalesAgentList.Count; nCount++)
-            {
-                m_lsaSalesAgentList.Add(lsaSalesAgentList[nCount]);
-            }
+            m_lsaSalesAgentList = lsaSalesAgentList.ToList();
         }
 
         public List<SalesAgent> GetListOfSalesAgentObjects()
         {
-            List<SalesAgent> lsaSalesAgentList = null;
-            int nCount = 0;
-
-            lsaSalesAgentList = new List<SalesAgent>();
-
-            for (nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
-            {
-                lsaSalesAgentList.Add(m_lsaSalesAgentList[nCount]);
-            }
-
-            return (lsaSalesAgentList);
+            return m_lsaSalesAgentList;
         }
     }
 
@@ -163,7 +129,7 @@ namespace aiCorporation.NewImproved
 
         public Client(string szClientName,
                       string szClientIdentifier,
-                      List<BankAccount> lbaBankAccountList)
+                      IEnumerable<BankAccount> lbaBankAccountList)
         {
             m_szClientName = szClientName;
             m_szClientIdentifier = szClientIdentifier;
@@ -193,21 +159,7 @@ namespace aiCorporation.NewImproved
         {
             get
             {
-                int nCount = 0;
-                bool boFound = false;
-                Client cClient = null;
-
-                while (!boFound &&
-                       nCount < m_lcClientList.Count)
-                {
-                    if (m_lcClientList[nCount].ClientIdentifier == szClientIdentifier)
-                    {
-                        boFound = true;
-                        cClient = m_lcClientList[nCount];
-                    }
-                    nCount++;
-                }
-                return (cClient);
+                return m_lcClientList.Where(x => x.ClientIdentifier == szClientIdentifier).FirstOrDefault();
             }
         }
 
@@ -227,24 +179,15 @@ namespace aiCorporation.NewImproved
         {
             int nCount;
 
-            m_lcClientList = new List<Client>();
-
             for (nCount = 0; nCount < clClientList.Count; nCount++)
             {
                 m_lcClientList.Add(clClientList[nCount].ToClient());
             }
         }
 
-        public ClientList(List<Client> lcClientList)
+        public ClientList(IEnumerable<Client> lcClientList)
         {
-            int nCount = 0;
-
-            m_lcClientList = new List<Client>();
-
-            for (nCount = 0; nCount < lcClientList.Count; nCount++)
-            {
-                m_lcClientList.Add(lcClientList[nCount]);
-            }
+            m_lcClientList = lcClientList.ToList();
         }
 
         public List<Client> GetListOfClientObjects()
@@ -333,31 +276,14 @@ namespace aiCorporation.NewImproved
             m_lbaBankAccountList.Sort(BankAccount.Compare);
         }
 
-        public BankAccountList(List<BankAccount> lbaBankAccountList)
+        public BankAccountList(IEnumerable<BankAccount> lbaBankAccountList)
         {
-            int nCount = 0;
-
-            m_lbaBankAccountList = new List<BankAccount>();
-
-            for (nCount = 0; nCount < lbaBankAccountList.Count; nCount++)
-            {
-                m_lbaBankAccountList.Add(lbaBankAccountList[nCount]);
-            }
+            m_lbaBankAccountList = lbaBankAccountList.ToList();
         }
 
-        public List<BankAccount> GetListOfBankAccountObjects()
+        public IEnumerable<BankAccount> GetListOfBankAccountObjects()
         {
-            List<BankAccount> lbaBankAccountList = null;
-            int nCount = 0;
-
-            lbaBankAccountList = new List<BankAccount>();
-
-            for (nCount = 0; nCount < m_lbaBankAccountList.Count; nCount++)
-            {
-                lbaBankAccountList.Add(m_lbaBankAccountList[nCount]);
-            }
-
-            return (lbaBankAccountList);
+            return m_lbaBankAccountList;
         }
     }
 
@@ -381,11 +307,7 @@ namespace aiCorporation.NewImproved
 
         public SalesAgent ToSalesAgent()
         {
-            SalesAgent saSalesAgent;
-
-            saSalesAgent = new SalesAgent(m_szSalesAgentName, m_szSalesAgentEmailAddress, m_clClientList.GetListOfClientObjects());
-
-            return (saSalesAgent);
+            return new SalesAgent(m_szSalesAgentName, m_szSalesAgentEmailAddress, m_clClientList.GetListOfClientObjects());
         }
 
         public SalesAgentBuilder()
@@ -416,21 +338,7 @@ namespace aiCorporation.NewImproved
         {
             get
             {
-                int nCount = 0;
-                bool boFound = false;
-                SalesAgentBuilder saSalesAgent = null;
-
-                while (!boFound &&
-                       nCount < m_lsaSalesAgentList.Count)
-                {
-                    if (m_lsaSalesAgentList[nCount].SalesAgentEmailAddress == szSalesAgentEmailAddress)
-                    {
-                        boFound = true;
-                        saSalesAgent = m_lsaSalesAgentList[nCount];
-                    }
-                    nCount++;
-                }
-                return (saSalesAgent);
+                return m_lsaSalesAgentList.Where(x=>x.SalesAgentEmailAddress == szSalesAgentEmailAddress).FirstOrDefault();
             }
         }
 
@@ -447,19 +355,9 @@ namespace aiCorporation.NewImproved
             m_lsaSalesAgentList = new List<SalesAgentBuilder>();
         }
 
-        public List<SalesAgent> GetListOfSalesAgentObjects()
+        public IEnumerable<SalesAgent> GetListOfSalesAgentObjects()
         {
-            List<SalesAgent> lsaSalesAgentList = null;
-            int nCount = 0;
-
-            lsaSalesAgentList = new List<SalesAgent>();
-
-            for (nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
-            {
-                lsaSalesAgentList.Add(m_lsaSalesAgentList[nCount].ToSalesAgent());
-            }
-
-            return (lsaSalesAgentList);
+            return m_lsaSalesAgentList.Select(x=>x.ToSalesAgent());
         }
     }
 
@@ -483,11 +381,7 @@ namespace aiCorporation.NewImproved
 
         public Client ToClient()
         {
-            Client cClient;
-
-            cClient = new Client(m_szClientName, m_szClientIdentifier, m_balBankAccountList.GetListOfBankAccountObjects());
-
-            return (cClient);
+            return new Client(m_szClientName, m_szClientIdentifier, m_balBankAccountList.GetListOfBankAccountObjects());
         }
 
         public ClientBuilder()
@@ -518,21 +412,7 @@ namespace aiCorporation.NewImproved
         {
             get
             {
-                int nCount = 0;
-                bool boFound = false;
-                ClientBuilder cClient = null;
-
-                while (!boFound &&
-                       nCount < m_lcClientList.Count)
-                {
-                    if (m_lcClientList[nCount].ClientIdentifier == szClientIdentifier)
-                    {
-                        boFound = true;
-                        cClient = m_lcClientList[nCount];
-                    }
-                    nCount++;
-                }
-                return (cClient);
+                return m_lcClientList.Where(x => x.ClientIdentifier == szClientIdentifier).FirstOrDefault();
             }
         }
 
@@ -549,19 +429,9 @@ namespace aiCorporation.NewImproved
             m_lcClientList = new List<ClientBuilder>();
         }
 
-        public List<Client> GetListOfClientObjects()
+        public IEnumerable<Client> GetListOfClientObjects()
         {
-            List<Client> lcClientList = null;
-            int nCount = 0;
-
-            lcClientList = new List<Client>();
-
-            for (nCount = 0; nCount < m_lcClientList.Count; nCount++)
-            {
-                lcClientList.Add(m_lcClientList[nCount].ToClient());
-            }
-
-            return (lcClientList);
+            return m_lcClientList.Select(x=>x.ToClient());
         }
     }
 
@@ -595,11 +465,7 @@ namespace aiCorporation.NewImproved
 
         public BankAccount ToBankAccount()
         {
-            BankAccount baBankAccount;
-
-            baBankAccount = new BankAccount(m_szBankName, m_szAccountNumber, m_szSortCode, m_szCurrency);
-
-            return (baBankAccount);
+            return new BankAccount(m_szBankName, m_szAccountNumber, m_szSortCode, m_szCurrency);
         }
     }
     public class BankAccountListBuilder
@@ -623,31 +489,14 @@ namespace aiCorporation.NewImproved
 
         public BankAccountBuilder GetBankAccount(string szBankName, string szAccountNumber, string szSortCode)
         {
-            int nCount = 0;
-            bool boFound = false;
-            BankAccountBuilder baBankAccount = null;
-
-            while (!boFound &&
-                   nCount < m_lbaBankAccountList.Count)
-            {
-                if (m_lbaBankAccountList[nCount].BankName == szBankName &&
-                    m_lbaBankAccountList[nCount].AccountNumber == szAccountNumber &&
-                    m_lbaBankAccountList[nCount].SortCode == szSortCode)
-                {
-                    boFound = true;
-                    baBankAccount = m_lbaBankAccountList[nCount];
-                }
-                nCount++;
-            }
-            return (baBankAccount);
+            return m_lbaBankAccountList.Where(x => x.BankName == szBankName &&
+                    x.AccountNumber == szAccountNumber &&
+                    x.SortCode == szSortCode).FirstOrDefault();
         }
 
         public void Add(BankAccountBuilder baBankAccount)
         {
-            if (baBankAccount != null)
-            {
-                m_lbaBankAccountList.Add(baBankAccount);
-            }
+            m_lbaBankAccountList.Add(baBankAccount);
         }
 
         public BankAccountListBuilder()
@@ -655,19 +504,9 @@ namespace aiCorporation.NewImproved
             m_lbaBankAccountList = new List<BankAccountBuilder>();
         }
 
-        public List<BankAccount> GetListOfBankAccountObjects()
+        public IEnumerable<BankAccount> GetListOfBankAccountObjects()
         {
-            List<BankAccount> lbaBankAccountList = null;
-            int nCount = 0;
-
-            lbaBankAccountList = new List<BankAccount>();
-
-            for (nCount = 0; nCount < m_lbaBankAccountList.Count; nCount++)
-            {
-                lbaBankAccountList.Add(m_lbaBankAccountList[nCount].ToBankAccount());
-            }
-
-            return (lbaBankAccountList);
+            return m_lbaBankAccountList.Select(x => x.ToBankAccount());
         }
     }
 }

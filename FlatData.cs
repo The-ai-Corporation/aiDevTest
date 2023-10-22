@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using CsvHelper;
+using aiCorporation.OriginalDoNotChange;
+using System.Collections.Concurrent;
 
 namespace aiCorporation.NewImproved
 {
@@ -101,21 +103,7 @@ namespace aiCorporation.NewImproved
         {
             get
             {
-                int nCount = 0;
-                bool boFound = false;
-                SalesAgentFileRecord safrSalesAgentFileRecord = null;
-
-                while (!boFound &&
-                       nCount < m_lsafrSalesAgentFileRecordList.Count)
-                {
-                    if (m_lsafrSalesAgentFileRecordList[nCount].SalesAgentEmailAddress == szSalesAgentEmailAddress)
-                    {
-                        boFound = true;
-                        safrSalesAgentFileRecord = m_lsafrSalesAgentFileRecordList[nCount];
-                    }
-                    nCount++;
-                }
-                return (safrSalesAgentFileRecord);
+                return m_lsafrSalesAgentFileRecordList.Where(x=>x.SalesAgentEmailAddress == szSalesAgentEmailAddress).FirstOrDefault();
             }
         }
 
@@ -192,37 +180,67 @@ namespace aiCorporation.NewImproved
         /************************************************************/
         public SalesAgentList ToSalesAgentList()
         {
-            throw new NotImplementedException("You must implement this function");
+            var salSalesAgentList = new SalesAgentListBuilder();
+            ClientBuilder cClient;
+            BankAccountBuilder baBankAccount;
+
+            var salesAgentDictionary = new ConcurrentDictionary<string, SalesAgentBuilder>();
+
+            foreach (var listItem in m_lsafrSalesAgentFileRecordList)
+            {
+                if (!salesAgentDictionary.TryGetValue(listItem.SalesAgentEmailAddress, out var currentSalesAgent))
+                {
+                    currentSalesAgent = new SalesAgentBuilder
+                    {
+                        SalesAgentEmailAddress = listItem.SalesAgentEmailAddress,
+                        SalesAgentName = listItem.SalesAgentName
+                    };
+                    salesAgentDictionary[listItem.SalesAgentEmailAddress] = currentSalesAgent;
+                    salSalesAgentList.Add(currentSalesAgent);
+                }
+                
+                cClient = currentSalesAgent.ClientList[listItem.ClientIdentifier];
+                
+                if (currentSalesAgent.ClientList[listItem.ClientIdentifier] == null)
+                {
+                    cClient = new ClientBuilder
+                    {
+                        ClientIdentifier = listItem.ClientIdentifier,
+                        ClientName = listItem.ClientName
+                    };
+                    currentSalesAgent.ClientList.Add(cClient);
+                }
+                
+                baBankAccount = cClient.BankAccountList.GetBankAccount(listItem.BankName, listItem.AccountNumber, listItem.SortCode);
+                
+                if (baBankAccount == null)
+                {
+                    baBankAccount = new BankAccountBuilder
+                    {
+                        BankName = listItem.BankName,
+                        AccountNumber = listItem.AccountNumber,
+                        SortCode = listItem.SortCode
+                    };
+                    cClient.BankAccountList.Add(baBankAccount);
+                }
+
+                baBankAccount.Currency = listItem.Currency;
+            }
+
+            var salReturnSalesAgentList = new SalesAgentList(salSalesAgentList.GetListOfSalesAgentObjects());
+
+            return salReturnSalesAgentList;
+
         }
 
         public SalesAgentFileRecordList(List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList)
         {
-            int nCount = 0;
-
-            m_lsafrSalesAgentFileRecordList = new List<SalesAgentFileRecord>();
-
-            if (lsafrSalesAgentFileRecordList != null)
-            {
-                for (nCount = 0; nCount < lsafrSalesAgentFileRecordList.Count; nCount++)
-                {
-                    m_lsafrSalesAgentFileRecordList.Add(lsafrSalesAgentFileRecordList[nCount]);
-                }
-            }
+            m_lsafrSalesAgentFileRecordList = lsafrSalesAgentFileRecordList;
         }
 
         public List<SalesAgentFileRecord> GetListOfSalesAgentFileRecordObjects()
         {
-            List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList = null;
-            int nCount = 0;
-
-            lsafrSalesAgentFileRecordList = new List<SalesAgentFileRecord>();
-
-            for (nCount = 0; nCount < m_lsafrSalesAgentFileRecordList.Count; nCount++)
-            {
-                lsafrSalesAgentFileRecordList.Add(m_lsafrSalesAgentFileRecordList[nCount]);
-            }
-
-            return (lsafrSalesAgentFileRecordList);
+            return (m_lsafrSalesAgentFileRecordList);
         }
     }
 }
