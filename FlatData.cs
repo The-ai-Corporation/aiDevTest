@@ -192,7 +192,93 @@ namespace aiCorporation.NewImproved
         /************************************************************/
         public SalesAgentList ToSalesAgentList()
         {
-            throw new NotImplementedException("You must implement this function");
+            var salesAgentListBuilder = new SalesAgentListBuilder();
+            var salesAgentsDict = new Dictionary<string, SalesAgentBuilder>();
+            SalesAgentBuilder currentSalesAgent = null;
+            ClientBuilder currentClient = null;
+            BankAccountBuilder currentBankAccount = null;
+
+            foreach (var record in m_lsafrSalesAgentFileRecordList)
+            {
+                // Check to get or create a new sales agent
+                if (currentSalesAgent == null || record.SalesAgentEmailAddress != currentSalesAgent.SalesAgentEmailAddress)
+                {
+                    // get the sales agent from the dictionary
+                    if (!salesAgentsDict.TryGetValue(record.SalesAgentEmailAddress, out currentSalesAgent))
+                    {
+                        currentSalesAgent = new SalesAgentBuilder
+                        {
+                            SalesAgentEmailAddress = record.SalesAgentEmailAddress,
+                            SalesAgentName = record.SalesAgentName
+                        };
+                        salesAgentsDict.Add(record.SalesAgentEmailAddress, currentSalesAgent);
+                        salesAgentListBuilder.Add(currentSalesAgent);
+                    }
+
+                    currentClient = null;
+                    currentBankAccount = null;
+                }
+
+                // Check to get or create a new client
+                if (currentClient == null || record.ClientIdentifier != currentClient.ClientIdentifier)
+                {
+                    //check for existing client in sales agents client list
+                    currentClient = currentSalesAgent.ClientList[record.ClientIdentifier];
+
+                    // create new client
+                    if (currentClient == null)
+                    {
+                        currentClient = new ClientBuilder
+                        {
+                            ClientIdentifier = record.ClientIdentifier,
+                            ClientName = record.ClientName
+                        };
+                        currentSalesAgent.ClientList.Add(currentClient);
+                    }
+
+                    currentBankAccount = null;
+                }
+
+                // Check to get or create a new bank account
+                if (currentBankAccount == null || !IsSameBankAccount(currentBankAccount, record))
+                {
+                    // check for existing bank account in current clients bank account list
+                    currentBankAccount = currentClient.BankAccountList.GetBankAccount(
+                        record.BankName,
+                        record.AccountNumber,
+                        record.SortCode);
+
+                    //create new bank account
+                    if (currentBankAccount == null)
+                    {
+                        currentBankAccount = new BankAccountBuilder
+                        {
+                            BankName = record.BankName,
+                            AccountNumber = record.AccountNumber,
+                            SortCode = record.SortCode,
+                            Currency = record.Currency
+                        };
+                        currentClient.BankAccountList.Add(currentBankAccount);
+                    }
+                }
+                else
+                {
+                    if (currentBankAccount.Currency != record.Currency)
+                    {
+                        currentBankAccount.Currency = record.Currency;
+                    }
+                }
+            }
+
+            return new SalesAgentList(salesAgentListBuilder.GetListOfSalesAgentObjects());
+        }
+
+        // Helper method to check if the current bank account matches the record
+        private bool IsSameBankAccount(BankAccountBuilder bankAccount, SalesAgentFileRecord record)
+        {
+            return bankAccount.BankName == record.BankName &&
+                   bankAccount.AccountNumber == record.AccountNumber &&
+                   bankAccount.SortCode == record.SortCode;
         }
 
         public SalesAgentFileRecordList(List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList)
