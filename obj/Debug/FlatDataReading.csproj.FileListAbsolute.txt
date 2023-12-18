@@ -1,0 +1,14 @@
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\bin\Debug\JSONParser.exe.config
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\bin\Debug\JSONParser.exe
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\bin\Debug\JSONParser.pdb
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\bin\Debug\CsvHelper.dll
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\bin\Debug\CsvHelper.xml
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\obj\Debug\FlatDataReading.csproj.AssemblyReference.cache
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\obj\Debug\FlatDataReading.csproj.SuggestedBindingRedirects.cache
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\obj\Debug\aiCorporation.Form1.resources
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\obj\Debug\aiCorporation.Properties.Resources.resources
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\obj\Debug\FlatDataReading.csproj.GenerateResource.cache
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\obj\Debug\FlatDataReading.csproj.CoreCompileInputs.cache
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\obj\Debug\FlatDataReading.csproj.CopyComplete
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\obj\Debug\JSONParser.exe
+C:\Users\ali_r\Source\Repos\aiDevTestAdeel\obj\Debug\JSONParser.pdb

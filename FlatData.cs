@@ -192,7 +192,49 @@ namespace aiCorporation.NewImproved
         /************************************************************/
         public SalesAgentList ToSalesAgentList()
         {
-            throw new NotImplementedException("You must implement this function");
+
+            SalesAgentListBuilder salSalesAgentList;
+            SalesAgentBuilder saCurrentSalesAgent;
+            ClientBuilder cClient;
+            BankAccountBuilder baBankAccount;
+
+            salSalesAgentList = new SalesAgentListBuilder();
+
+            var groupedSalesAgentRecords = m_lsafrSalesAgentFileRecordList.GroupBy(i => i.SalesAgentEmailAddress).ToList();
+            foreach (var group in groupedSalesAgentRecords)
+            {
+                var groupKey = group.Key;
+                saCurrentSalesAgent = new SalesAgentBuilder();
+                saCurrentSalesAgent.SalesAgentEmailAddress = groupKey;
+                saCurrentSalesAgent.SalesAgentName = group.Select(i => i.SalesAgentName).First();
+                salSalesAgentList.Add(saCurrentSalesAgent);
+
+                var clientList = group.Where(f => f.SalesAgentEmailAddress == groupKey).GroupBy(i => i.ClientIdentifier).ToList();
+
+                foreach (var client in clientList)
+                {
+
+                    cClient = new ClientBuilder();
+                    cClient.ClientIdentifier = client.Key;
+                    cClient.ClientName = client.Select(f => f.ClientName).First();
+                    saCurrentSalesAgent.ClientList.Add(cClient);
+
+                    foreach (var s in client) 
+                    {
+                        baBankAccount = new BankAccountBuilder();
+                        baBankAccount.BankName = s.BankName;
+                        baBankAccount.AccountNumber = s.AccountNumber;
+                        baBankAccount.SortCode = s.SortCode;
+                        baBankAccount.Currency = s.Currency;
+                        cClient.BankAccountList.Add(baBankAccount);
+                    }
+
+                }
+
+            }
+            SalesAgentList salReturnSalesAgentList = new SalesAgentList(salSalesAgentList.GetListOfSalesAgentObjects());
+
+            return (salReturnSalesAgentList);
         }
 
         public SalesAgentFileRecordList(List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList)
