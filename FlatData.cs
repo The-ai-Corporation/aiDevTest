@@ -200,8 +200,8 @@ namespace aiCorporation.NewImproved
 
             salSalesAgentList = new SalesAgentListBuilder();
 
-            var test = m_lsafrSalesAgentFileRecordList.GroupBy(i => i.SalesAgentEmailAddress).ToList();
-            foreach (var group in test)
+            var groupedSalesAgentRecords = m_lsafrSalesAgentFileRecordList.GroupBy(i => i.SalesAgentEmailAddress).ToList();
+            foreach (var group in groupedSalesAgentRecords)
             {
                 var groupKey = group.Key;
                 saCurrentSalesAgent = new SalesAgentBuilder();
@@ -211,15 +211,15 @@ namespace aiCorporation.NewImproved
 
                 var clientList = group.Where(f => f.SalesAgentEmailAddress == groupKey).GroupBy(i => i.ClientIdentifier).ToList();
 
-                foreach (var item in clientList)
+                foreach (var client in clientList)
                 {
 
                     cClient = new ClientBuilder();
-                    cClient.ClientIdentifier = item.Key;
-                    cClient.ClientName = item.Select(f => f.ClientName).First();
+                    cClient.ClientIdentifier = client.Key;
+                    cClient.ClientName = client.Select(f => f.ClientName).First();
                     saCurrentSalesAgent.ClientList.Add(cClient);
 
-                    foreach (var s in item) 
+                    foreach (var s in client) 
                     {
                         baBankAccount = new BankAccountBuilder();
                         baBankAccount.BankName = s.BankName;
