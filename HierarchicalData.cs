@@ -76,26 +76,26 @@ namespace aiCorporation.NewImproved
             List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList;
             SalesAgentFileRecordList safrlSalesAgentFileRecordList;
             SalesAgentFileRecord safrSalesAgentFileRecord;
-            int nSalesAgentCount;
+            //int nSalesAgentCount;
             int nClientCount;
             int nBankAccountCount;
 
             lsafrSalesAgentFileRecordList = new List<SalesAgentFileRecord>();
 
-            for (nSalesAgentCount = 0; nSalesAgentCount < m_lsaSalesAgentList.Count; nSalesAgentCount++)
+            foreach (SalesAgent sAgent in m_lsaSalesAgentList)
             {
-                for (nClientCount = 0; nClientCount < m_lsaSalesAgentList[nSalesAgentCount].ClientList.Count; nClientCount++)
+                for (nClientCount = 0; nClientCount < sAgent.ClientList.Count; nClientCount++)
                 {
-                    for (nBankAccountCount = 0; nBankAccountCount < m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList.Count; nBankAccountCount++)
+                    for (nBankAccountCount = 0; nBankAccountCount < sAgent.ClientList[nClientCount].BankAccountList.Count; nBankAccountCount++)
                     {
-                        safrSalesAgentFileRecord = new SalesAgentFileRecord(m_lsaSalesAgentList[nSalesAgentCount].SalesAgentName,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].SalesAgentEmailAddress,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].ClientName,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].ClientIdentifier,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList[nBankAccountCount].BankName,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList[nBankAccountCount].AccountNumber,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList[nBankAccountCount].SortCode,
-                                                                            m_lsaSalesAgentList[nSalesAgentCount].ClientList[nClientCount].BankAccountList[nBankAccountCount].Currency);
+                        safrSalesAgentFileRecord = new SalesAgentFileRecord(sAgent.SalesAgentName,
+                                                                            sAgent.SalesAgentEmailAddress,
+                                                                            sAgent.ClientList[nClientCount].ClientName,
+                                                                            sAgent.ClientList[nClientCount].ClientIdentifier,
+                                                                            sAgent.ClientList[nClientCount].BankAccountList[nBankAccountCount].BankName,
+                                                                            sAgent.ClientList[nClientCount].BankAccountList[nBankAccountCount].AccountNumber,
+                                                                            sAgent.ClientList[nClientCount].BankAccountList[nBankAccountCount].SortCode,
+                                                                            sAgent.ClientList[nClientCount].BankAccountList[nBankAccountCount].Currency);
                         lsafrSalesAgentFileRecordList.Add(safrSalesAgentFileRecord);
                     }
                 }
@@ -108,42 +108,45 @@ namespace aiCorporation.NewImproved
 
         public void Sort()
         {
-            int nCount;
+            //int nCount;
 
             m_lsaSalesAgentList.Sort(SalesAgent.Compare);
 
-            for (nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
+            foreach (SalesAgent salesAgent in m_lsaSalesAgentList)
             {
-                m_lsaSalesAgentList[nCount].ClientList.Sort();
-            }
+                salesAgent.ClientList.Sort();
+            }           
         }
 
         public SalesAgentList(List<SalesAgent> lsaSalesAgentList)
         {
-            int nCount = 0;
+            //int nCount = 0;
 
             m_lsaSalesAgentList = new List<SalesAgent>();
 
-            for (nCount = 0; nCount < lsaSalesAgentList.Count; nCount++)
+            foreach (SalesAgent salesAgent in lsaSalesAgentList)
             {
-                m_lsaSalesAgentList.Add(lsaSalesAgentList[nCount]);
+                m_lsaSalesAgentList.Add(salesAgent);
             }
+
         }
 
         public List<SalesAgent> GetListOfSalesAgentObjects()
         {
             List<SalesAgent> lsaSalesAgentList = null;
-            int nCount = 0;
+            //int nCount = 0;
 
             lsaSalesAgentList = new List<SalesAgent>();
 
-            for (nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
+            foreach (SalesAgent salesAgent in m_lsaSalesAgentList)
             {
-                lsaSalesAgentList.Add(m_lsaSalesAgentList[nCount]);
+                lsaSalesAgentList.Add(salesAgent);
             }
 
             return (lsaSalesAgentList);
+                        
         }
+    
     }
 
     public class Client
@@ -213,23 +216,28 @@ namespace aiCorporation.NewImproved
 
         public void Sort()
         {
-            int nCount;
+            //int nCount;
 
             m_lcClientList.Sort(Client.Compare);
 
-            for (nCount = 0; nCount < m_lcClientList.Count; nCount++)
+            //for (nCount = 0; nCount < m_lcClientList.Count; nCount++)
+            //{
+            //    m_lcClientList[nCount].BankAccountList.Sort();
+            //}
+
+            Parallel.ForEach(m_lcClientList, client =>
             {
-                m_lcClientList[nCount].BankAccountList.Sort();
-            }
+                client.BankAccountList.Sort();
+            });
         }
 
         public ClientList(ClientListBuilder clClientList)
         {
-            int nCount;
+            //int nCount;
 
             m_lcClientList = new List<Client>();
 
-            for (nCount = 0; nCount < clClientList.Count; nCount++)
+            for (int nCount = 0; nCount < clClientList.Count; nCount++)
             {
                 m_lcClientList.Add(clClientList[nCount].ToClient());
             }
@@ -237,29 +245,33 @@ namespace aiCorporation.NewImproved
 
         public ClientList(List<Client> lcClientList)
         {
-            int nCount = 0;
+            //int nCount = 0;
 
-            m_lcClientList = new List<Client>();
+            //m_lcClientList = new List<Client>();
 
-            for (nCount = 0; nCount < lcClientList.Count; nCount++)
-            {
-                m_lcClientList.Add(lcClientList[nCount]);
-            }
+            //for (nCount = 0; nCount < lcClientList.Count; nCount++)
+            //{
+            //    m_lcClientList.Add(lcClientList[nCount]);
+            //}
+
+            m_lcClientList = new List<Client>(lcClientList);
         }
 
         public List<Client> GetListOfClientObjects()
         {
-            List<Client> lcClientList = null;
-            int nCount = 0;
+            //List<Client> lcClientList = null;
+            //int nCount = 0;
 
-            lcClientList = new List<Client>();
+            //lcClientList = new List<Client>();
 
-            for (nCount = 0; nCount < m_lcClientList.Count; nCount++)
-            {
-                lcClientList.Add(m_lcClientList[nCount]);
-            }
+            //for (nCount = 0; nCount < m_lcClientList.Count; nCount++)
+            //{
+            //    lcClientList.Add(m_lcClientList[nCount]);
+            //}
 
-            return (lcClientList);
+            //return (lcClientList);
+
+            return new List<Client>(m_lcClientList);
         }
     }
 
@@ -335,29 +347,32 @@ namespace aiCorporation.NewImproved
 
         public BankAccountList(List<BankAccount> lbaBankAccountList)
         {
-            int nCount = 0;
+            //int nCount = 0;
 
-            m_lbaBankAccountList = new List<BankAccount>();
+            //m_lbaBankAccountList = new List<BankAccount>();
 
-            for (nCount = 0; nCount < lbaBankAccountList.Count; nCount++)
-            {
-                m_lbaBankAccountList.Add(lbaBankAccountList[nCount]);
-            }
+            //for (nCount = 0; nCount < lbaBankAccountList.Count; nCount++)
+            //{
+            //    m_lbaBankAccountList.Add(lbaBankAccountList[nCount]);
+            //}
+
+            m_lbaBankAccountList = new List<BankAccount>(lbaBankAccountList);
         }
 
         public List<BankAccount> GetListOfBankAccountObjects()
         {
-            List<BankAccount> lbaBankAccountList = null;
-            int nCount = 0;
+            //List<BankAccount> lbaBankAccountList = null;
 
-            lbaBankAccountList = new List<BankAccount>();
+            //lbaBankAccountList = new List<BankAccount>();
 
-            for (nCount = 0; nCount < m_lbaBankAccountList.Count; nCount++)
-            {
-                lbaBankAccountList.Add(m_lbaBankAccountList[nCount]);
-            }
+            //foreach (BankAccount item in m_lbaBankAccountList)
+            //{
+            //    lbaBankAccountList.Add(item);
+            //}
 
-            return (lbaBankAccountList);
+            //return (lbaBankAccountList);
+
+            return new List<BankAccount>(m_lbaBankAccountList);
         }
     }
 
@@ -450,13 +465,12 @@ namespace aiCorporation.NewImproved
         public List<SalesAgent> GetListOfSalesAgentObjects()
         {
             List<SalesAgent> lsaSalesAgentList = null;
-            int nCount = 0;
-
+            
             lsaSalesAgentList = new List<SalesAgent>();
 
-            for (nCount = 0; nCount < m_lsaSalesAgentList.Count; nCount++)
+            foreach (SalesAgentBuilder item in m_lsaSalesAgentList)
             {
-                lsaSalesAgentList.Add(m_lsaSalesAgentList[nCount].ToSalesAgent());
+                lsaSalesAgentList.Add(item.ToSalesAgent());
             }
 
             return (lsaSalesAgentList);
@@ -551,17 +565,26 @@ namespace aiCorporation.NewImproved
 
         public List<Client> GetListOfClientObjects()
         {
-            List<Client> lcClientList = null;
-            int nCount = 0;
+            //List<Client> lcClientList = null;
+            //int nCount = 0;
 
-            lcClientList = new List<Client>();
+            //lcClientList = new List<Client>();
 
-            for (nCount = 0; nCount < m_lcClientList.Count; nCount++)
+            //for (nCount = 0; nCount < m_lcClientList.Count; nCount++)
+            //{
+            //    lcClientList.Add(m_lcClientList[nCount].ToClient());
+            //}
+
+            //return (lcClientList);
+
+            var lcClientList = new List<Client>(m_lcClientList.Count);
+
+            foreach (var client in m_lcClientList)
             {
-                lcClientList.Add(m_lcClientList[nCount].ToClient());
+                lcClientList.Add(client.ToClient());
             }
 
-            return (lcClientList);
+            return lcClientList;
         }
     }
 
@@ -657,17 +680,19 @@ namespace aiCorporation.NewImproved
 
         public List<BankAccount> GetListOfBankAccountObjects()
         {
-            List<BankAccount> lbaBankAccountList = null;
-            int nCount = 0;
+            //List<BankAccount> lbaBankAccountList = null;
+            //int nCount = 0;
 
-            lbaBankAccountList = new List<BankAccount>();
+            //lbaBankAccountList = new List<BankAccount>();
 
-            for (nCount = 0; nCount < m_lbaBankAccountList.Count; nCount++)
-            {
-                lbaBankAccountList.Add(m_lbaBankAccountList[nCount].ToBankAccount());
-            }
+            //for (nCount = 0; nCount < m_lbaBankAccountList.Count; nCount++)
+            //{
+            //    lbaBankAccountList.Add(m_lbaBankAccountList[nCount].ToBankAccount());
+            //}
 
-            return (lbaBankAccountList);
+            //return (lbaBankAccountList);
+
+            return m_lbaBankAccountList.Select(item => item.ToBankAccount()).ToList();
         }
     }
 }
