@@ -122,15 +122,14 @@ namespace aiCorporation.NewImproved
         public string ToCsvString()
         {
             StringBuilder sbCsvString;
-            int nCount;
-
+            
             sbCsvString = new StringBuilder();
 
             sbCsvString.Append(SalesAgentFileRecord.CsvHeader());
 
-            for (nCount = 0; nCount < m_lsafrSalesAgentFileRecordList.Count; nCount++)
+            foreach (SalesAgentFileRecord item in m_lsafrSalesAgentFileRecordList)
             {
-                sbCsvString.AppendFormat("{0}", m_lsafrSalesAgentFileRecordList[nCount].ToCsvRecord());
+                sbCsvString.AppendFormat("{0}", item.ToCsvRecord());
             }
 
             return (sbCsvString.ToString());
@@ -187,42 +186,102 @@ namespace aiCorporation.NewImproved
             return (safrlSalesAgentFileRecordList);
         }
 
-        /************************************************************/
-        /* THIS IS THE FUNCTION THAT WE WOULD LIKE YOU TO IMPLEMENT */
-        /************************************************************/
+        //HB Jan 25
         public SalesAgentList ToSalesAgentList()
-        {
-            throw new NotImplementedException("You must implement this function");
+        {          
+
+            var salSalesAgentList = new SalesAgentListBuilder();
+
+            var sabdSalesAgent = new Dictionary<string, SalesAgentBuilder>(m_lsafrSalesAgentFileRecordList.Count);
+            var cbdClient = new Dictionary<string, Dictionary<string, ClientBuilder>>(m_lsafrSalesAgentFileRecordList.Count);
+            var babdBankAccount = new Dictionary<string, Dictionary<string, BankAccountBuilder>>(m_lsafrSalesAgentFileRecordList.Count);
+
+            foreach (var record in m_lsafrSalesAgentFileRecordList)
+            {
+                if (!sabdSalesAgent.TryGetValue(record.SalesAgentEmailAddress, out var saCurrentSalesAgent))
+                {
+                    saCurrentSalesAgent = new SalesAgentBuilder
+                    {
+                        SalesAgentEmailAddress = record.SalesAgentEmailAddress,
+                        SalesAgentName = record.SalesAgentName
+                    };
+                    sabdSalesAgent[record.SalesAgentEmailAddress] = saCurrentSalesAgent;
+                    salSalesAgentList.Add(saCurrentSalesAgent);
+                }
+
+                if (!cbdClient.TryGetValue(record.SalesAgentEmailAddress, out var clients))
+                {
+                    clients = new Dictionary<string, ClientBuilder>();
+                    cbdClient[record.SalesAgentEmailAddress] = clients;
+                }
+
+                if (!clients.TryGetValue(record.ClientIdentifier, out var cClient))
+                {
+                    cClient = new ClientBuilder
+                    {
+                        ClientIdentifier = record.ClientIdentifier,
+                        ClientName = record.ClientName
+                    };
+                    clients[record.ClientIdentifier] = cClient;
+                    saCurrentSalesAgent.ClientList.Add(cClient);
+                }
+
+                if (!babdBankAccount.TryGetValue(record.ClientIdentifier, out var bankAccounts))
+                {
+                    bankAccounts = new Dictionary<string, BankAccountBuilder>();
+                    babdBankAccount[record.ClientIdentifier] = bankAccounts;
+                }
+
+                var bankKey = $"{record.BankName}-{record.AccountNumber}-{record.SortCode}";
+                if (!bankAccounts.TryGetValue(bankKey, out var baBankAccount))
+                {
+                    baBankAccount = new BankAccountBuilder
+                    {
+                        BankName = record.BankName,
+                        AccountNumber = record.AccountNumber,
+                        SortCode = record.SortCode
+                    };
+                    bankAccounts[bankKey] = baBankAccount;
+                    cClient.BankAccountList.Add(baBankAccount);
+                }
+
+                baBankAccount.Currency = record.Currency;
+            }
+
+            return new SalesAgentList(salSalesAgentList.GetListOfSalesAgentObjects());
         }
+
 
         public SalesAgentFileRecordList(List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList)
         {
-            int nCount = 0;
 
-            m_lsafrSalesAgentFileRecordList = new List<SalesAgentFileRecord>();
+            //m_lsafrSalesAgentFileRecordList = new List<SalesAgentFileRecord>();
 
-            if (lsafrSalesAgentFileRecordList != null)
-            {
-                for (nCount = 0; nCount < lsafrSalesAgentFileRecordList.Count; nCount++)
-                {
-                    m_lsafrSalesAgentFileRecordList.Add(lsafrSalesAgentFileRecordList[nCount]);
-                }
-            }
+            //if (lsafrSalesAgentFileRecordList != null)
+            //{
+            //    foreach (SalesAgentFileRecord item in lsafrSalesAgentFileRecordList)
+            //    {
+            //        m_lsafrSalesAgentFileRecordList.Add(item);
+            //    }
+            //}
+
+            m_lsafrSalesAgentFileRecordList = lsafrSalesAgentFileRecordList ?? new List<SalesAgentFileRecord>();
         }
 
         public List<SalesAgentFileRecord> GetListOfSalesAgentFileRecordObjects()
         {
-            List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList = null;
-            int nCount = 0;
+            //List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList = null;
 
-            lsafrSalesAgentFileRecordList = new List<SalesAgentFileRecord>();
+            //lsafrSalesAgentFileRecordList = new List<SalesAgentFileRecord>();
 
-            for (nCount = 0; nCount < m_lsafrSalesAgentFileRecordList.Count; nCount++)
-            {
-                lsafrSalesAgentFileRecordList.Add(m_lsafrSalesAgentFileRecordList[nCount]);
-            }
+            //foreach (SalesAgentFileRecord item in m_lsafrSalesAgentFileRecordList)
+            //{
+            //    lsafrSalesAgentFileRecordList.Add(item);
+            //}
 
-            return (lsafrSalesAgentFileRecordList);
+            //return (lsafrSalesAgentFileRecordList);
+
+            return new List<SalesAgentFileRecord>(m_lsafrSalesAgentFileRecordList);
         }
     }
 }
