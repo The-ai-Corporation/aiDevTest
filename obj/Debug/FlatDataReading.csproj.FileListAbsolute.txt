@@ -1,0 +1,13 @@
+C:\Users\seifu\Source\Repos\aiDevTest\bin\Debug\JSONParser.exe.config
+C:\Users\seifu\Source\Repos\aiDevTest\bin\Debug\JSONParser.exe
+C:\Users\seifu\Source\Repos\aiDevTest\bin\Debug\JSONParser.pdb
+C:\Users\seifu\Source\Repos\aiDevTest\bin\Debug\CsvHelper.dll
+C:\Users\seifu\Source\Repos\aiDevTest\bin\Debug\CsvHelper.xml
+C:\Users\seifu\Source\Repos\aiDevTest\obj\Debug\FlatDataReading.csproj.AssemblyReference.cache
+C:\Users\seifu\Source\Repos\aiDevTest\obj\Debug\aiCorporation.Form1.resources
+C:\Users\seifu\Source\Repos\aiDevTest\obj\Debug\aiCorporation.Properties.Resources.resources
+C:\Users\seifu\Source\Repos\aiDevTest\obj\Debug\FlatDataReading.csproj.GenerateResource.cache
+C:\Users\seifu\Source\Repos\aiDevTest\obj\Debug\FlatDataReading.csproj.CoreCompileInputs.cache
+C:\Users\seifu\Source\Repos\aiDevTest\obj\Debug\FlatData.6C7FC716.Up2Date
+C:\Users\seifu\Source\Repos\aiDevTest\obj\Debug\JSONParser.exe
+C:\Users\seifu\Source\Repos\aiDevTest\obj\Debug\JSONParser.pdb
