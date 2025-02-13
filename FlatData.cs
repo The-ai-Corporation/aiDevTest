@@ -192,7 +192,46 @@ namespace aiCorporation.NewImproved
         /************************************************************/
         public SalesAgentList ToSalesAgentList()
         {
-            throw new NotImplementedException("You must implement this function");
+
+            List<SalesAgent> lSalesAgent = new List<SalesAgent>();
+
+            foreach (SalesAgentFileRecord safrSalesAgentFileRecord in m_lsafrSalesAgentFileRecordList)
+            {
+
+                BankAccount baBankAccount = new BankAccount(safrSalesAgentFileRecord.BankName, safrSalesAgentFileRecord.AccountNumber, safrSalesAgentFileRecord.SortCode, safrSalesAgentFileRecord.Currency);
+                List<BankAccount> lbaBankAccountList = new List<BankAccount>();
+                lbaBankAccountList.Add(baBankAccount);
+
+                SalesAgent saSalesAgent = lSalesAgent.Find(sa => sa.SalesAgentEmailAddress == safrSalesAgentFileRecord.SalesAgentEmailAddress);
+                if (saSalesAgent != null)
+                {
+                    //agent already exist, update the list
+                    List<Client> lcClient = saSalesAgent.ClientList.GetListOfClientObjects();
+                    Client cClient = lcClient.Find(c => c.ClientIdentifier == safrSalesAgentFileRecord.ClientIdentifier);
+                    if (cClient != null)
+                    {
+                        //client already exist, update the list
+                        List<BankAccount> lbaBankAccount = cClient.BankAccountList.GetListOfBankAccountObjects();
+                        lbaBankAccount.Add(baBankAccount);
+                        cClient.BankAccountList = new BankAccountList(lbaBankAccount);
+                    }
+                    else
+                    {
+                        lcClient.Add(new Client(safrSalesAgentFileRecord.ClientName, safrSalesAgentFileRecord.ClientIdentifier, lbaBankAccountList));
+                        saSalesAgent.ClientList = new ClientList(lcClient);
+                    }
+                }
+                else
+                {
+                    List<Client> lClient = new List<Client>();
+                    lClient.Add(new Client(safrSalesAgentFileRecord.ClientName, safrSalesAgentFileRecord.ClientIdentifier, lbaBankAccountList));
+                    saSalesAgent = new SalesAgent(safrSalesAgentFileRecord.SalesAgentName, safrSalesAgentFileRecord.SalesAgentEmailAddress, lClient);
+
+                    //add new sales agent
+                    lSalesAgent.Add(saSalesAgent);
+                }
+            }
+            return new SalesAgentList(lSalesAgent);
         }
 
         public SalesAgentFileRecordList(List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList)

@@ -14,7 +14,7 @@ namespace aiCorporation.NewImproved
 
         public string SalesAgentName { get { return (m_szSalesAgentName); } }
         public string SalesAgentEmailAddress { get { return (m_szSalesAgentEmailAddress); } }
-        public ClientList ClientList { get { return (m_clClientList); } }
+        public ClientList ClientList { get { return (m_clClientList); } set { m_clClientList = value; } }
 
         public static int Compare(SalesAgent saFirst, SalesAgent saSecond)
         {
@@ -154,7 +154,7 @@ namespace aiCorporation.NewImproved
 
         public string ClientName { get { return (m_szClientName); } }
         public string ClientIdentifier { get { return (m_szClientIdentifier); } }
-        public BankAccountList BankAccountList { get { return (m_balBankAccountList); } }
+        public BankAccountList BankAccountList { get { return (m_balBankAccountList); } set { m_balBankAccountList = value; } }
 
         public static int Compare(Client cFirst, Client cSecond)
         {
