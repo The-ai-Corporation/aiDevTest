@@ -192,7 +192,55 @@ namespace aiCorporation.NewImproved
         /************************************************************/
         public SalesAgentList ToSalesAgentList()
         {
-            throw new NotImplementedException("You must implement this function");
+            SalesAgentList salReturnSalesAgentList;
+            SalesAgentListBuilder salSalesAgentList = new SalesAgentListBuilder();
+            Dictionary<string, SalesAgentBuilder> salesAgentDict = new Dictionary<string, SalesAgentBuilder>();
+            Dictionary<string, Dictionary<string, ClientBuilder>> clientDict = new Dictionary<string, Dictionary<string, ClientBuilder>>();
+
+            foreach (var record in m_lsafrSalesAgentFileRecordList)
+            {
+                if (!salesAgentDict.TryGetValue(record.SalesAgentEmailAddress, out SalesAgentBuilder saCurrentSalesAgent))
+                {
+                    saCurrentSalesAgent = new SalesAgentBuilder
+                    {
+                        SalesAgentEmailAddress = record.SalesAgentEmailAddress,
+                        SalesAgentName = record.SalesAgentName
+                    };
+                    salSalesAgentList.Add(saCurrentSalesAgent);
+                    salesAgentDict[record.SalesAgentEmailAddress] = saCurrentSalesAgent;
+
+                    // Initialize client dictionary for this SalesAgent
+                    clientDict[record.SalesAgentEmailAddress] = new Dictionary<string, ClientBuilder>();
+                }
+
+                if (!clientDict[record.SalesAgentEmailAddress].TryGetValue(record.ClientIdentifier, out ClientBuilder cClient))
+                {
+                    cClient = new ClientBuilder
+                    {
+                        ClientIdentifier = record.ClientIdentifier,
+                        ClientName = record.ClientName
+                    };
+                    saCurrentSalesAgent.ClientList.Add(cClient);
+                    clientDict[record.SalesAgentEmailAddress][record.ClientIdentifier] = cClient;
+                }
+
+                var baBankAccount = cClient.BankAccountList.GetBankAccount(record.BankName, record.AccountNumber, record.SortCode);
+                if (baBankAccount == null)
+                {
+                    baBankAccount = new BankAccountBuilder
+                    {
+                        BankName = record.BankName,
+                        AccountNumber = record.AccountNumber,
+                        SortCode = record.SortCode
+                    };
+                    cClient.BankAccountList.Add(baBankAccount);
+                }
+
+                baBankAccount.Currency = record.Currency;
+            }
+
+            salReturnSalesAgentList = new SalesAgentList(salSalesAgentList.GetListOfSalesAgentObjects());
+            return salReturnSalesAgentList;
         }
 
         public SalesAgentFileRecordList(List<SalesAgentFileRecord> lsafrSalesAgentFileRecordList)
